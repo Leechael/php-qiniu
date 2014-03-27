@@ -1,6 +1,6 @@
 <?php
 
-namespace Qiniu;
+namespace Leechael\Qiniu;
 
 use Illuminate\Support\ServiceProvider;
 
