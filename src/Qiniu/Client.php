@@ -65,6 +65,81 @@ class Client
     }
 
     /**
+     * Unofficial way to check credentials quickly.
+     *
+     * @return bool
+     */
+    public function checkCredentials()
+    {
+        $result = $this->ls();
+        return $result->response->code === 200;
+    }
+
+    /**
+     * Generate upload token for clients (typical form in Browser).
+     *
+     * @see http://developer.qiniu.com/docs/v6/api/reference/security/put-policy.html
+     *
+     * @param array $policy
+     * @return string
+     */
+    public function uploadToken(array $policy = array())
+    {
+        $default = array(
+            "scope"         => "{$this->options["bucket"]}",
+            "deadline"      => time() + $this->options["timeout"],
+            "detectMime"    => 3,
+            "returnBody"    => array(
+                "uri"       => "$(key)",
+                "hash"      => "$(etag)",
+                "mime"      => "$(mimeType)",
+                "size"      => "$(fsize)",
+                "name"      => "$(fname)",
+                "exif"      => "$(exif)",
+                "imageInfo" => "$(imageInfo)",
+                "avinfo"    => "$(avinfo)",
+            ),
+        );
+        $policy += $default;
+        $policy["returnBody"] = json_encode($policy["returnBody"]);
+        return $this->mac->signWithData(json_encode($policy));
+    }
+
+    /**
+     * Handy alias for `uploadToken`, restrict upload file should be image.
+     *
+     * @param array $policy
+     * @return string
+     */
+    public function uploadTokenForImage(array $policy = array())
+    {
+        $default = array(
+            "mimeLimit"    => "image/*",
+            "transform"    => "imageMogr2/auto-orient/strip",
+            "fopTimeout"   => 5,
+            "fsizeLimit"   => 1024 * 1024 * 5,  // 5Mb
+        );
+        $policy += $default;
+        return $this->uploadToken($policy);
+    }
+
+    /**
+     * Handy alias for `uploadToken`, restrict upload file should be video.
+     *
+     * @param array $policy
+     * @return string
+     */
+    public function uploadTokenForVideo(array $policy = array())
+    {
+        $default = array(
+            "mimeLimit"    => "video/*",
+            "fsizeLimit"   => 1024 * 1024 * 200,  // 200Mb
+        );
+        $policy += $default;
+        return $this->uploadToken($policy);
+    }
+
+    /**
      * Upload file
      *
      * @param string $path
