@@ -24,7 +24,7 @@ class Result implements \ArrayAccess
             }
             $this->response = $response;
             $this->debug = array(
-                'log' => $response->headers['x-log'],
+                'log' => isset($response->headers['x-log']) ? $response->headers["x-log"] : null,
                 'id'  => isset($response->headers['x-reqid']) ? $response->headers['x-reqid'] : null
             );
         } else if ($request instanceof Request) {
