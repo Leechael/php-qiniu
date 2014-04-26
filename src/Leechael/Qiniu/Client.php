@@ -166,6 +166,15 @@ class Client
     }
 
     /**
+     * Get full url by key.
+     */
+    public function url($key)
+    {
+        $key = ltrim($key, "/");
+        return "http://{$this->options["bucket"]}.qiniudn.com/{$key}";
+    }
+
+    /**
      * Get file stats
      *
      * @param string $key
