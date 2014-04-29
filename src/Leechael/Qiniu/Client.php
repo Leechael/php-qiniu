@@ -504,4 +504,21 @@ class Client
         }
         return $result;
     }
+
+    /**
+     * Create screenshot for video.
+     *
+     * @param string $uri
+     * @param string $key
+     * @return bool|result
+     */
+    public function saveAs($uri, $key, $fop)
+    {
+        $encodedEntryURI = Util::uriEncode("{$this->options["bucket"]}:{$key}");
+        $url = "{$this->options["bucket"]}.qiniudn.com/{$uri}?{$fop}|saveas/{$encodedEntryURI}";
+        $sign = $this->mac->sign($url);
+        $finalUrl = "http://{$url}/sign/{$sign}";
+        $response = Request::create($finalUrl)->get();
+        return $response;
+    }
 }
